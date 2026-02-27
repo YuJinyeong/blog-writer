@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>생성된 블로그 글</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✍️ 블로그 글 생성기</h1>
+            <a href="/" class="back-link">← 새 글 작성하기</a>
+        </header>
+
+        <div class="result-container">
+            <div class="result-header">
+                <h2>📋 생성된 블로그 글</h2>
+                <div class="result-actions">
+                    <button class="copy-btn" id="copyHtmlBtn" onclick="copyHtml()">HTML 복사</button>
+                    <button class="copy-btn secondary" id="copyTextBtn" onclick="copyText()">텍스트 복사</button>
+                </div>
+            </div>
+
+            <div class="result-content" id="resultContent">
+                <h3 class="post-title" id="postTitle" th:text="${post.title}"></h3>
+                <div class="post-body" id="postBody" th:utext="${post.htmlContent}"></div>
+            </div>
+
+            <div th:if="${not #lists.isEmpty(post.imagePositions)}" class="image-guide">
+                <h3>📷 사진 삽입 가이드</h3>
+                <ul>
+                    <li th:each="img : ${post.imagePositions}">
+                        <strong th:text="'사진' + ${img.index}"></strong>:
+                        <span th:text="${img.fileName}"></span> —
+                        <em th:text="${img.suggestedCaption}"></em>
+                    </li>
+                </ul>
+            </div>
+
+            <section class="revise-section">
+                <h3>💬 수정 요청</h3>
+                <div class="revise-form">
+                    <input type="text" id="reviseInput"
+                           placeholder="예: 제목 좀 더 짧게 바꿔줘, 마지막 문단 삭제해줘">
+                    <button class="revise-btn" id="reviseBtn" onclick="revisePost()">수정</button>
+                </div>
+                <div class="revise-loading" id="reviseLoading" style="display:none">
+                    ⏳ 수정 중...
+                </div>
+            </section>
+        </div>
+
+        <input type="hidden" id="sessionId" th:value="${post.sessionId}">
+        <input type="hidden" id="plainText" th:value="${post.plainText}">
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

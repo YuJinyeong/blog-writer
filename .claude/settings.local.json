@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew compileKotlin:*)",
+      "Bash(/usr/libexec/java_home:*)",
+      "Bash(git init:*)",
+      "Bash(gh auth:*)"
+    ]
+  }
+}

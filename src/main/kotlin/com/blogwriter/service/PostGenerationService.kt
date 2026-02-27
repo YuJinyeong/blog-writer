@@ -25,7 +25,8 @@ class PostGenerationService(
     suspend fun generate(
         images: List<MultipartFile>,
         memo: String,
-        style: PostStyle
+        style: PostStyle,
+        customInstruction: String = ""
     ): GeneratedPost {
         val imageDataList = images.map { file ->
             imageService.processForApi(file) to imageService.getMediaType(file)
@@ -35,12 +36,13 @@ class PostGenerationService(
 
         val exifDataList = images.map { imageService.extractExifData(it) }
 
-        val post = claudeApiService.generatePost(아
+        val post = claudeApiService.generatePost(
             imageDataList = imageDataList,
             fileNames = fileNames,
             memo = memo,
             style = style,
-            exifDataList = exifDataList
+            exifDataList = exifDataList,
+            customInstruction = customInstruction
         )
 
         val userContent = buildString {

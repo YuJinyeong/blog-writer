@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         formData.append('memo', document.getElementById('memo').value);
         formData.append('style', document.querySelector('input[name="style"]:checked').value);
+        formData.append('customInstruction', document.getElementById('customInstruction')?.value || '');
 
         try {
             const response = await fetch('/generate', {

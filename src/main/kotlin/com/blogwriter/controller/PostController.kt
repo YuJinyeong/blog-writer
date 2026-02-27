@@ -25,7 +25,8 @@ class PostController(
     fun generate(
         @RequestParam("images") images: List<MultipartFile>,
         @RequestParam("memo") memo: String,
-        @RequestParam("style") style: PostStyle
+        @RequestParam("style") style: PostStyle,
+        @RequestParam("customInstruction", required = false, defaultValue = "") customInstruction: String
     ): ResponseEntity<Any> = runBlocking {
         val filteredImages = images.filter { !it.isEmpty }
 
@@ -35,7 +36,7 @@ class PostController(
         }
 
         try {
-            val post = postGenerationService.generate(filteredImages, memo, style)
+            val post = postGenerationService.generate(filteredImages, memo, style, customInstruction)
             ResponseEntity.ok(post as Any)
         } catch (e: Exception) {
             ResponseEntity.internalServerError()

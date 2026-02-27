@@ -36,9 +36,10 @@ class ClaudeApiService(
         fileNames: List<String>,
         memo: String,
         style: PostStyle,
-        exifDataList: List<ExifData?>
+        exifDataList: List<ExifData?>,
+        customInstruction: String = ""
     ): GeneratedPost {
-        val systemPrompt = buildSystemPrompt(style)
+        val systemPrompt = buildSystemPrompt(style, customInstruction)
         val userContent = buildUserContent(imageDataList, memo, exifDataList)
 
         val requestBody = buildRequestBody(systemPrompt, listOf(mapOf("role" to "user", "content" to userContent)))
@@ -65,30 +66,36 @@ class ClaudeApiService(
         return callApi(requestBody)
     }
 
-    private fun buildSystemPrompt(style: PostStyle): String = """
-        당신은 네이버 블로그 전문 작가입니다.
-        사용자가 보낸 사진과 메모를 바탕으로 블로그 글을 작성합니다.
+    private fun buildSystemPrompt(style: PostStyle, customInstruction: String = ""): String {
+        val customSection = if (customInstruction.isNotBlank()) {
+            "\n\n## 사용자 추가 조건\n$customInstruction"
+        } else ""
 
-        ## 규칙
-        - 톤: ${style.promptDescription}
-        - 각 사진에 대한 자연스러운 설명을 포함하세요
-        - 사진 삽입 위치를 [사진1], [사진2] 등의 마커로 표시하세요
-        - 제목은 검색에 잘 걸리도록 장소명, 메뉴명 등 키워드를 포함하세요
-        - 500~1500자 분량으로 작성하세요
-        - 이모지를 적절히 활용하세요
+        return """
+            당신은 네이버 블로그 전문 작가입니다.
+            사용자가 보낸 사진과 메모를 바탕으로 블로그 글을 작성합니다.
 
-        ## 출력 형식
-        반드시 아래 형식으로만 출력하세요. 다른 설명은 붙이지 마세요.
+            ## 규칙
+            - 톤: ${style.promptDescription}
+            - 각 사진에 대한 자연스러운 설명을 포함하세요
+            - 사진 삽입 위치를 [사진1], [사진2] 등의 마커로 표시하세요
+            - 제목은 검색에 잘 걸리도록 장소명, 메뉴명 등 키워드를 포함하세요
+            - 500~1500자 분량으로 작성하세요
+            - 이모지를 적절히 활용하세요$customSection
 
-        ---TITLE---
-        (제목)
-        ---CONTENT---
-        (본문 - [사진N] 마커 포함)
-        ---CAPTIONS---
-        사진1: (사진 설명)
-        사진2: (사진 설명)
-        ...
-    """.trimIndent()
+            ## 출력 형식
+            반드시 아래 형식으로만 출력하세요. 다른 설명은 붙이지 마세요.
+
+            ---TITLE---
+            (제목)
+            ---CONTENT---
+            (본문 - [사진N] 마커 포함)
+            ---CAPTIONS---
+            사진1: (사진 설명)
+            사진2: (사진 설명)
+            ...
+        """.trimIndent()
+    }
 
     private fun buildUserContent(
         imageDataList: List<Pair<String, String>>,

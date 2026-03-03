@@ -8,6 +8,6 @@ server:
   port: 8080
 
 claude:
-  api-key: ${CLAUDE_API_KEY:your-api-key-here}
+  api-key: ${env.CLAUDE_API_KEY:your-api-key-here}
   model: claude-sonnet-4-6
   max-tokens: 4096

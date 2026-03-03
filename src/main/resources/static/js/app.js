@@ -149,34 +149,82 @@ function backToEdit() {
 
 // ── 복사 ──
 
-function copyHtml() {
+async function copyHtml() {
     const title = document.getElementById('postTitle')?.textContent || '';
     const body = document.getElementById('postBody')?.innerHTML || '';
     const html = `<h2>${title}</h2>${body}`;
 
-    navigator.clipboard.writeText(html).then(() => {
+    try {
+        // ClipboardItem API: HTML + 텍스트 폴백 동시 제공
+        const htmlBlob = new Blob([html], { type: 'text/html' });
+        const textBlob = new Blob([html], { type: 'text/plain' });
+        await navigator.clipboard.write([
+            new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
+        ]);
         showToast('HTML이 클립보드에 복사되었습니다!');
-    }).catch(() => fallbackCopy(html));
+    } catch {
+        // 폴백: 서식 유지 복사 (execCommand + selection)
+        try {
+            const container = document.createElement('div');
+            container.innerHTML = html;
+            container.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+            document.body.appendChild(container);
+            const range = document.createRange();
+            range.selectNodeContents(container);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            document.execCommand('copy');
+            sel.removeAllRanges();
+            document.body.removeChild(container);
+            showToast('HTML이 클립보드에 복사되었습니다!');
+        } catch {
+            showToast('복사에 실패했습니다. 본문을 직접 선택해 복사해 주세요.');
+        }
+    }
 }
 
-function copyText() {
+async function copyText() {
     const title = document.getElementById('postTitle')?.textContent || '';
     const plainText = document.getElementById('plainText')?.value || '';
     const text = `${title}\n\n${plainText}`;
 
-    navigator.clipboard.writeText(text).then(() => {
+    try {
+        await navigator.clipboard.writeText(text);
         showToast('텍스트가 클립보드에 복사되었습니다!');
-    }).catch(() => fallbackCopy(text));
+    } catch {
+        fallbackCopy(text, '텍스트가 클립보드에 복사되었습니다!');
+    }
 }
 
-function fallbackCopy(text) {
+async function copyMarkdown() {
+    const title = document.getElementById('postTitle')?.textContent || '';
+    const plainText = document.getElementById('plainText')?.value || '';
+
+    const md = `# ${title}\n\n` + plainText.replace(/\[사진(\d+)]/g, '![사진$1]()');
+
+    try {
+        await navigator.clipboard.writeText(md);
+        showToast('마크다운이 클립보드에 복사되었습니다!');
+    } catch {
+        fallbackCopy(md, '마크다운이 클립보드에 복사되었습니다!');
+    }
+}
+
+function fallbackCopy(text, successMsg) {
     const textarea = document.createElement('textarea');
     textarea.value = text;
+    textarea.style.cssText = 'position:fixed;left:0;top:0;opacity:0';
     document.body.appendChild(textarea);
+    textarea.focus();
     textarea.select();
-    document.execCommand('copy');
+    try {
+        document.execCommand('copy');
+        showToast(successMsg || '복사되었습니다!');
+    } catch {
+        showToast('복사에 실패했습니다. 본문을 직접 선택해 복사해 주세요.');
+    }
     document.body.removeChild(textarea);
-    showToast('복사되었습니다!');
 }
 
 

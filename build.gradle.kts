@@ -35,7 +35,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     // .env 파일 로딩
-    implementation("me.paulschwarz:spring-dotenv:4.0.0")
+    implementation(platform("me.paulschwarz:spring-dotenv-bom:5.1.0"))
+    implementation("me.paulschwarz:springboot3-dotenv")
     runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.118.Final:osx-aarch_64")
 
     // 이미지 EXIF 처리

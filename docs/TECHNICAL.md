@@ -79,7 +79,7 @@
 |---|---|---|---|
 | `images` | `MultipartFile[]` | O | 사진 1~10장 (JPEG/PNG/GIF/WebP, 개별 최대 10MB) |
 | `memo` | `String` | O | 사용자 메모 |
-| `style` | `PostStyle` | O | `CASUAL` \| `REVIEW` \| `TRAVEL` |
+| `style` | `PostStyle` | O | `CASUAL` \| `REVIEW` \| `TRAVEL` \| `DRY_HUMOR` |
 | `customInstruction` | `String` | X | 추가 생성 조건 |
 
 **성공 응답 (200):**
@@ -158,7 +158,8 @@ data class ExifData(
 enum class PostStyle(val displayName: String, val promptDescription: String) {
     CASUAL("친근한 일상", "친근하고 가벼운 일상 블로그 톤. '~했어요', '~인데요' 같은 구어체 사용"),
     REVIEW("정보성 리뷰", "정보를 체계적으로 전달하는 리뷰 톤. 위치, 가격, 메뉴 등을 정리하여 작성"),
-    TRAVEL("여행 에세이", "감성적인 여행 에세이 톤. 여행의 느낌과 감동을 담아 서술")
+    TRAVEL("여행 에세이", "감성적인 여행 에세이 톤. 여행의 느낌과 감동을 담아 서술"),
+    DRY_HUMOR("시크 건조체", "반말 평서문 + 건조한 유머 + 팩트 중심 톤. 짧은 단문, 감탄사 금지, 기능적 이모지만 사용")
 }
 ```
 
@@ -269,7 +270,8 @@ Claude Messages API와 통신하는 핵심 서비스.
 | `form.submit` 이벤트 | `FormData`로 AJAX POST, 로딩 상태 관리 |
 | `showResult(post)` | 결과 데이터를 DOM에 바인딩 |
 | `backToEdit()` | 결과 숨기고 입력 폼 복원 (데이터 유지) |
-| `copyHtml()` | `<h2>제목</h2> + htmlContent`를 클립보드 복사 |
+| `copyHtml()` | ClipboardItem API로 서식 유지 HTML 복사 (폴백: execCommand) |
+| `copyMarkdown()` | 제목 + 본문을 마크다운 형식으로 변환하여 복사 |
 | `copyText()` | `제목 + plainText`를 클립보드 복사 |
 | `revisePost()` | 세션 ID + 수정 지시로 `/revise` AJAX 호출 |
 | `showToast(message)` | 하단 토스트 알림 (2.5초) |
@@ -342,7 +344,7 @@ CLAUDE_API_KEY=sk-ant-...
 | 테스트 | 검증 항목 |
 |---|---|
 | 시스템 프롬프트 한국어 구성 | 블로그 작가 역할, 마커 형식 |
-| 스타일별 프롬프트 톤 | CASUAL/REVIEW/TRAVEL 각각 고유 설명 포함 |
+| 스타일별 프롬프트 톤 | CASUAL/REVIEW/TRAVEL/DRY_HUMOR 각각 고유 설명 포함 |
 | 커스텀 인스트럭션 추가 | 비어있지 않을 때만 섹션 생성 |
 | 한국어 응답 파싱 | 제목/본문/캡션 분리, HTML 변환, 파일명 매핑 |
 | 특수문자/이모지 파싱 | 따옴표, 원화 기호, 이모지 보존 |
